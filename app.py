@@ -26,7 +26,7 @@ def process_word_file(file_path):
     """
     # Procesar el archivo Word usando pandoc
     try:
-        subprocess.run(['pandoc', '-t', 'markdown_mmd', '--extract-media', '.', file_path, '-o', 'output.md'], check=True)
+        subprocess.run(['pandoc', '--wrap', 'none', '-t', 'markdown_mmd', '--extract-media', '.', file_path, '-o', 'output.md'], check=True)
     except subprocess.CalledProcessError as e:
         raise RuntimeError("Error al procesar el archivo Word. Asegúrate de que el archivo tenga el formato correcto.") from e
 
