@@ -5,8 +5,15 @@ import subprocess
 import shutil
 import tempfile
 import zipfile
+import logging
 
 app = Flask(__name__)
+
+logging.basicConfig(level=logging.DEBUG)
+
+# Establecer el valor de MAX_CONTENT_LENGTH en el POST
+app.config['MAX_CONTENT_LENGTH'] = 32 * 1024 * 1024  # 32 megabytes
+
 
 def process_word_file(file_path):
     """
@@ -37,14 +44,16 @@ def process_word_file(file_path):
     # Crear el archivo ZIP incluyendo el contenido de la carpeta 'media'
     with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
         zip_file.write(output_md, os.path.basename(output_md))
-        for foldername, subfolders, filenames in os.walk(media_dir):
-            for filename in filenames:
-                file_path = os.path.join(foldername, filename)
-                zip_file.write(file_path, os.path.relpath(file_path, current_dir))
+        if os.path.exists(media_dir):
+            for foldername, subfolders, filenames in os.walk(media_dir):
+                for filename in filenames:
+                    file_path = os.path.join(foldername, filename)
+                    zip_file.write(file_path, os.path.relpath(file_path, current_dir))
 
     # Eliminar archivos temporales
     os.remove('output.md')
-    shutil.rmtree('media')
+    if os.path.exists(media_dir):
+        shutil.rmtree('media')
 
     return zip_file_path
 
@@ -69,11 +78,11 @@ def process_file():
             return "No se proporcionó un archivo en la solicitud.", 400
 
         try:
-            file = request.files['file']
-
             temp_dir = tempfile.gettempdir()
-            file_path = os.path.join(temp_dir, 'entrada.docx')
-            file.save(file_path)
+            uploaded_file = request.files['file']
+            
+            file_path = os.path.join(temp_dir, uploaded_file.filename)
+            uploaded_file.save(file_path)
 
             zip_file_path = process_word_file(file_path)
 
