@@ -78,11 +78,19 @@ def process_file():
             return "No se proporcionó un archivo en la solicitud.", 400
 
         try:
+            file = request.files['file']
             temp_dir = tempfile.gettempdir()
-            uploaded_file = request.files['file']
+            filename = file.filename
             
-            file_path = os.path.join(temp_dir, uploaded_file.filename)
-            uploaded_file.save(file_path)
+            # Obtener la extensión del archivo original
+            extension = os.path.splitext(filename)[1]
+
+            # Verificar si la extensión es .docx
+            if extension != '.docx':
+                return f"El archivo debe tener extensión .docx"
+            
+            # Construir la ruta de archivo utilizando la extensión original
+            file_path = os.path.join(temp_dir, f'entrada{extension}')
 
             zip_file_path = process_word_file(file_path)
 

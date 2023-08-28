@@ -123,9 +123,19 @@ def process_file():
 
         try:
             file = request.files['file']
-            temp_dir = tempfile.gettempdir()
-            file_path = os.path.join(temp_dir, 'entrada.docx')
-            file.save(file_path)
+            temp_dir = tempfile.gettempdir()
+            filename = file.filename
+            
+            # Obtener la extensión del archivo original
+            extension = os.path.splitext(filename)[1]
+
+            # Verificar si la extensión es .docx
+            if extension != '.docx':
+                return f"El archivo debe tener extensión .docx"
+            
+            # Construir la ruta de archivo utilizando la extensión original
+            file_path = os.path.join(temp_dir, f'entrada{extension}')
+            
             zip_file_path = process_word_file(file_path)
             with open(zip_file_path, 'rb') as f:
                 zip_content = f.read()
