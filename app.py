@@ -92,6 +92,8 @@ def process_file():
             # Construir la ruta de archivo utilizando la extensión original
             file_path = os.path.join(temp_dir, f'entrada{extension}')
 
+            file.save(file_path)
+
             zip_file_path = process_word_file(file_path)
 
             with open(zip_file_path, 'rb') as f:
